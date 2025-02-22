@@ -9,13 +9,22 @@ const router = express.Router();
 router.post('/register', async (req, res) => {
     try {
         const { username, password, role } = req.body;
+
+        const validRoles = ['Admin', 'User'];
+        if (!validRoles.includes(role)) {
+            return res.status(400).json({ message: 'Invalid role. Choose Admin or User.' });
+        }
+
         const hashedPassword = await bcrypt.hash(password, 10);
         const user = await User.create({ username, password: hashedPassword, role });
-        res.status(201).json({ message: 'User created', user });
+
+        res.status(201).json({ message: 'User created successfully', user: { username: user.username, role: user.role } });
     } catch (error) {
         res.status(400).json({ error: error.message });
     }
 });
+
+
 router.put('/update', async (req, res) => {
     try {
         const { username, password, newUsername, newPassword, newRole } = req.body;
